@@ -1,3 +1,38 @@
+
+Pre installation (Local)
+-------------------------------------------------------
+  DockerHub
+  Kubectl
+  NodeJS
+  AWS cli
+    aws eks update-kubeconfig (Connects laptop to EKS)
+---------------------------------------------------------
+
+Local test
+-------------------------------------------------------
+STEP 1: Build your frontend (chec if required)
+  npm install
+  npm run build
+
+STEP 2: Test Docker image locally
+  docker build -t brain-app .
+  docker run -p 8080:80 brain-app
+  http://localhost:8080
+
+STEP 3: AWS Configure
+
+STEP 4: Test Kubernetes locally
+  aws eks update-kubeconfig 
+  kubectl get nodes
+  kubectl apply -f kubernetes.yaml
+  kubectl apply -f service.yaml
+  kubectl get pods (should see 2 running pods)
+  kubectl get svc (copy external IP)
+-------------------------------------------------------
+
+
+
+
 STEP 1: Dockerize
 # Build Image:
 docker build -t brain-app .

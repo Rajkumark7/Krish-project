@@ -110,3 +110,45 @@ Step 3: Build Stage
 
 
 
+
+
+
+
+
+---------------------------------------------------------------------------------
+Complete Flow
+
+STEP 1: You push code to GitHub (trigger event)
+STEP 2: CodePipeline detects change (CodePipeline continuously watches your GitHub repo)
+STEP 3: Source stage
+          - CodePipeline pulls your repo
+          - Sends it to build stage
+STEP 4: CodeBuild starts (runs buildspec.yaml)
+          - Installs kubectl
+          - Prepare tool for k8s access
+        <<<<<<<<Pre-build phase>>>>>>>>  
+        Docker login (docker login Docker Hub)
+        Connect to EKS (now CodeBuild can talk to EKS)
+        
+        <<<<<<<Build phase>>>>>>>
+        Docker Build
+          - take Dockerfile
+          - copies dists/
+          - create image using Nginx
+            Output: brain-app image created locally
+        Tag image
+
+        <<<<Post-build phase>>>>
+        - push image
+        - deploy to EKS (now k8s gets updated)
+
+STEP 5: Kubernetes deployment in EKS
+        - Deployment created (now image running inside pod)
+          creates 2 pods (after EKS pulls image from DockerHub)
+        - Service created (loadbalancer)
+          kubectl get service brain-service
+          copy external IP with http tagged
+
+
+
+

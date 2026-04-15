@@ -1,0 +1,56 @@
+# #ECR
+# version: 0.2
+
+# phases:
+#   pre_build:
+#     commands:
+#       - echo Logging into ECR
+#       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+
+#   build:
+#     commands:
+#       - docker build -t brain-app .
+#       - docker tag brain-app:latest <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/brain-app:latest
+
+#   post_build:
+#     commands:
+#       - docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/brain-app:latest
+
+
+#DockerHub
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing kubectl
+      - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.27.0/2023-08-15/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
+
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub
+      - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - echo Updating kubeconfig
+      - aws eks --region us-east-1 update-kubeconfig --name brain-cluster
+
+  build:
+    commands:
+      - echo Building Docker image
+      - docker build -t brain-app .
+      - docker tag brain-app $DOCKER_USERNAME/brain-app:latest
+
+  post_build:
+    commands:
+      - echo Pushing to Docker Hub
+      - docker push $DOCKER_USERNAME/brain-app:latest  
+      
+      - echo Deploying to EKS
+      - kubectl apply -f kubernetes.yaml
+      - kubectl apply -f service.yaml
+
+
+######Points to remember:
+# 1. In codebuild, set the environment variables DOCKER_USERNAME and DOCKER_PASSWORD    
